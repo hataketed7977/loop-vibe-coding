@@ -64,15 +64,21 @@ Each tick the agent claims at most one row, does its job, hands off, and exits.
 1. Create a row: fill `task`, set `status = new`, `owner = coder`.
 2. Walk away. The agents will spec → review → implement → review → fix → … on
    their own.
-3. When a row lands in **🔴 Needs me** (`owner = human`, `status = testing`),
-   do the real acceptance test:
-   - **Pass** → set `status = integrating`, `owner = coder`. The coder runs a
-     final check, commits, and `openspec archive`s the change, then sets
-     `status = done`. (Agents reach `done` only through this post-acceptance
-     step — never on their own judgement.)
-   - **Bug** → write repro steps in `bug`, set `status = implementing`,
-     `owner = coder`, and reset `round = 0` so the fix gets a full budget. It
-     re-enters the loop.
+3. When a row lands in **🔴 Needs me** (`owner = human`), check its `status`:
+   - `status = testing` → a finished change is ready for your **acceptance test**:
+     - **Pass** → set `status = integrating`, `owner = coder`. The coder runs a
+       final check, commits, and `openspec archive`s the change, then sets
+       `status = done`. (Agents reach `done` only through this post-acceptance
+       step — never on their own judgement.)
+     - **Bug** → write repro steps in `bug` (always fill it — the coder keys the
+       bug-fix path off this field), set `status = implementing`, `owner = coder`,
+       and reset `round = 0` so the fix gets a full budget. It re-enters the loop.
+   - `status = blocked` → the circuit breaker tripped: the agents couldn't
+     converge and parked it for your decision. There may be **no working
+     implementation to test** — do not acceptance-test it. Instead make the call
+     and hand the baton back: set `status = new`, `owner = coder` to rethink the
+     spec, or `status = implementing`, `owner = coder`, `round = 0` with guidance
+     in `bug` to resume coding — or just drop the row.
 
 ## Verify it works
 

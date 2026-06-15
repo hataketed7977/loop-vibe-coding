@@ -97,6 +97,25 @@ loop:
       next_status: done
       next_owner: none     # `none` = CLEAR the owner field (leave it empty), NOT
                            # the literal string "none". `done` rows have no owner.
+    blocked:
+      owner: human         # circuit-breaker parking lane: the loop could NOT
+                           # converge on its own and needs a human decision.
+                           # This is NOT the acceptance lane (`testing`) — there
+                           # may be no working implementation to test yet.
+      # human decides the way out and hands the baton back:
+      #   resume spec   -> status=new,          owner=coder  (rethink the approach)
+      #   resume code   -> status=implementing,  owner=coder, round=0  (+ guidance in `bug`)
+      #   give up       -> leave here / delete the row
+
+# -----------------------------------------------------------------------------
+# Circuit breaker target. When `round >= max_rounds` without converging — in
+# EITHER the spec loop or the code loop — the agent holding the baton parks the
+# change in `blocked` (NOT `testing`) and hands it to the human, so the human's
+# acceptance inbox is never polluted with un-implemented tie-breaks.
+# -----------------------------------------------------------------------------
+  breaker:
+    next_status: blocked
+    next_owner: human
 
 # -----------------------------------------------------------------------------
 # Quality gate. Which feedback severities MUST be fixed before a change can pass

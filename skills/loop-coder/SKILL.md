@@ -66,15 +66,21 @@ Look up the current `status` in `loop.transitions` and do the matching job.
 - Hand off: set `status` and `owner` per `transitions.new` (→ `spec` / reviewer).
 
 ### status == `implementing`  →  implement (or fix a human-reported bug)
-- **First check `bug`.** If `bug` is non-empty, a human bounced this change back
-  from acceptance: treat `bug` as the new requirement — reproduce it, diagnose
-  the root cause, and fix it. Otherwise, implement the approved change spec
-  normally.
-- **Reset the breaker on a bug bounce.** A human bug return (`bug` non-empty)
-  starts a fresh fix budget — `transitions.testing.on_bug` carries
-  `reset_round: true`. Don't assume the executor honored it: if `bug` is
-  non-empty and `round != 0`, set `round = 0` yourself in this update. Otherwise
-  a leftover high `round` trips the circuit breaker on the first review.
+- **Detect a bug bounce first.** A change is here as a *bug return* (not a fresh
+  implementation) if EITHER `bug` is non-empty OR it has already been through a
+  review cycle (`change_id`/`spec_ref` set and `test_report` shows a prior run).
+  In a bug return, treat the defect as the new requirement: reproduce it,
+  diagnose the root cause, and fix it. Prefer the `bug` field for the repro; if a
+  human bounced the change but left `bug` empty, do NOT silently fall back to
+  re-implementing from scratch — read `review` / `test_report` / `resolution` for
+  the failure context, and note in `resolution` that `bug` was empty so the human
+  knows to fill it next time. Only treat the change as a brand-new implementation
+  when it is genuinely arriving from an approved spec for the first time.
+- **Reset the breaker on a bug bounce.** A human bug return starts a fresh fix
+  budget — `transitions.testing.on_bug` carries `reset_round: true`. Don't assume
+  the executor honored it: if this is a bug return (per the detection above) and
+  `round != 0`, set `round = 0` yourself in this update. Otherwise a leftover
+  high `round` trips the circuit breaker on the first review.
 - **Self-check before handing off**: run the test & lint commands from
   `AGENTS.md`. Fix what you can. Put the raw machine output (test/lint results)
   in `test_report`, and your judgement / what you changed in `resolution`.
@@ -124,9 +130,10 @@ When you hand off you MUST, in the same Base update:
 ## 4. Safety
 
 - **Circuit breaker**: if `round >= loop.max_rounds`, do NOT start another fix
-  cycle. Instead set `owner=human`, `status=testing`, and write in `resolution`:
-  "Not converging after N rounds — needs human judgement." This stops the loop
-  from burning tokens arguing with the reviewer.
+  cycle. Park the change for a human: set `owner=human` and `status=blocked`
+  (the circuit-breaker lane per `loop.breaker` — NOT `testing`), and write in
+  `resolution`: "Not converging after N rounds — needs human judgement." This
+  stops the loop from burning tokens arguing with the reviewer.
 - **Acceptance is not yours**: the human owns the acceptance gate. You may only
   write `status=done` from the `integrating` status — i.e. AFTER a human has
   passed acceptance. Never set `done` from any other status.

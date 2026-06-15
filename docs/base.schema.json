@@ -28,8 +28,8 @@
       "type": "single_select",
       "feishu_type": 3,
       "written_by": "coder|reviewer|human",
-      "desc": "Lifecycle stage. Agents only write 'done' from the 'integrating' stage (after a human accepts); the human writes status on kickoff and at the acceptance gate.",
-      "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "integrating", "done"]
+      "desc": "Lifecycle stage. Agents only write 'done' from the 'integrating' stage (after a human accepts); the human writes status on kickoff and at the acceptance gate. 'blocked' is the circuit-breaker parking lane — an agent moves a non-converging change here for a human decision (it is NOT the acceptance lane).",
+      "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "integrating", "blocked", "done"]
     },
     {
       "key": "owner",

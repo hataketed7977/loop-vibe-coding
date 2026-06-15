@@ -98,9 +98,11 @@ the existing `review`.
 
 - **Circuit breaker**: if `round >= loop.max_rounds` and blocking issues remain
   (whether you are stuck in the spec loop or the code-review loop), do NOT bounce
-  back to the coder again. Set `owner=human`, `status=testing`, and note in
-  `review`: "Unresolved after N rounds — needs human decision." Let the human
-  break the tie.
+  back to the coder again. Park the change for a human: set `owner=human` and
+  `status=blocked` (the circuit-breaker lane per `loop.breaker` — NOT `testing`,
+  which is for accepting a *finished* implementation), and note in `review`:
+  "Unresolved after N rounds — needs human decision." Let the human break the
+  tie (rethink the spec, or resume coding with guidance).
 - **Stay in your lane**: never edit the code or set `status=done`. You review and
   route; the coder fixes; the human accepts.
 - **Verify, don't assume**: prefer running the project's own checks over trusting

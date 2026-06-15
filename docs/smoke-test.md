@@ -58,8 +58,9 @@ yours) in the claim step.
 ### 5. The circuit breaker actually stops
 
 Temporarily set `loop.max_rounds = 2` and feed a change that keeps bouncing.
-Confirm that once `round` hits the cap the agent stops and hands the row back to
-`human` instead of looping forever and burning tokens.
+Confirm that once `round` hits the cap the agent stops and parks the row in
+`status = blocked`, `owner = human` (the circuit-breaker lane — NOT `testing`)
+instead of looping forever and burning tokens.
 
 ## What "pass" means
 

@@ -54,6 +54,8 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
 | `fixing`      | coder      | fixes applied       | `reviewing`    | reviewer    |
 | `testing`     | human      | acceptance pass     | `integrating`  | coder       |
 | `testing`     | human      | bug found (round=0) | `implementing` | coder       |
+| any loop      | agent      | round ≥ max_rounds  | `blocked`      | human       |
+| `blocked`     | human      | resume / rethink    | `new` or `implementing` | coder |
 | `integrating` | coder      | commit + archive    | `done`         | —           |
 
 ## The two invariants
@@ -66,13 +68,19 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
 2. **The loop cannot spin forever.** `round` increments on every review — both
    spec reviews (`new ↔ spec`) and code reviews (`reviewing ↔ fixing`). When
    `round >= loop.max_rounds`, whichever agent holds the baton stops the
-   ping-pong and routes to `owner=human, status=testing` with a note explaining
-   it didn't converge. An unattended loop that can't converge escalates; it does
-   not quietly burn tokens. The two loops each get their own full budget:
-   `round` resets to 0 when the spec is approved (`spec → implementing`), and
-   again when a human bounces a change back with a `bug` (`testing →
-   implementing`) — so a hard-fought spec debate never starves the later code
-   review/fix loop, and a bugfix never inherits an exhausted counter.
+   ping-pong and parks the change in `status=blocked, owner=human` — the
+   dedicated circuit-breaker lane, **not** `testing` — with a note explaining it
+   didn't converge. `blocked` is distinct from `testing` on purpose: `testing`
+   means "a finished change is ready for your acceptance test", while `blocked`
+   means "the agents are stuck and need a human decision" (there may be no
+   working implementation yet). The human resumes it (back to `new` to rethink
+   the spec, or `implementing` with guidance to resume coding) or drops it. An
+   unattended loop that can't converge escalates; it does not quietly burn
+   tokens. The two loops each get their own full budget: `round` resets to 0 when
+   the spec is approved (`spec → implementing`), and again when a human bounces a
+   change back with a `bug` (`testing → implementing`) — so a hard-fought spec
+   debate never starves the later code review/fix loop, and a bugfix never
+   inherits an exhausted counter.
 
 ## Why severities gate the flow
 

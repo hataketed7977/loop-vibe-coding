@@ -123,15 +123,18 @@ relay baton that drives everything.
 | `fixing`       | coder    | judge feedback, fix, re-apply       | `reviewing` / reviewer                |
 | `testing`      | human    | **real acceptance test**            | `integrating`/coder (pass) · `implementing`/coder (bug) |
 | `integrating`  | coder    | commit + `openspec archive`         | `done`                                |
+| `blocked`      | human    | break a non-converging tie          | `new` or `implementing` / coder       |
 | `done`         | —        | committed & archived                | —                                     |
 
 **Safety rails.** A `max_rounds` circuit breaker guards **both** the spec
 (`new ↔ spec`) and code (`reviewing ↔ fixing`) loops — each gets its own full
 budget (`round` resets to 0 when the spec is approved and on a human bug bounce)
-— and forces a hand-off to the human if the agents fail to converge, so an
-unattended loop can't sit there burning tokens arguing with itself. Agents only
-write `status=done` from the `integrating` step, and only after a human has
-already accepted the change.
+— and when the agents fail to converge it parks the change in a dedicated
+`blocked` lane for a human decision (kept separate from the `testing` acceptance
+lane, so your inbox never fills with un-implemented tie-breaks), so an unattended
+loop can't sit there burning tokens arguing with itself. Agents only write
+`status=done` from the `integrating` step, and only after a human has already
+accepted the change.
 
 ---
 

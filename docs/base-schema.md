@@ -35,6 +35,7 @@ change's full lifecycle.** Create a table with the fields below, then put its
 | `fixing`       | Review feedback being applied                        | coder           |
 | `testing`      | Clean — awaiting human acceptance test               | human           |
 | `integrating`  | Human accepted — coder commits & archives            | coder           |
+| `blocked`      | Circuit breaker tripped — needs a human decision (NOT acceptance) | human |
 | `done`         | Committed & archived (written only from `integrating`) | —             |
 
 ## `owner` single-select options
@@ -43,8 +44,11 @@ change's full lifecycle.** Create a table with the fields below, then put its
 
 ## Recommended views
 
-- **🔴 Needs me** — filter `owner = human`. This is your inbox: rows here are
-  waiting for your acceptance test (or a tie-break after the circuit breaker).
+- **🔴 Needs me** — filter `owner = human`. This is your inbox. Two kinds of row
+  land here: `status = testing` (a finished change awaiting your acceptance test)
+  and `status = blocked` (the loop couldn't converge and parked it for your
+  decision — there may be no working implementation to test yet, so don't treat
+  it as acceptance work).
 - **🔄 In flight** — filter `owner != human AND status != done`. The loop's
   live activity.
 - **✅ Done** — filter `status = done`.
