@@ -59,7 +59,9 @@ the existing `review`.
   too — see §4).
 - Route per `transitions.spec`:
   - blocking gaps → `on_issues` (back to coder to revise the spec);
-  - sound → `on_clean` (→ `implementing` / coder).
+  - sound → `on_clean` (→ `implementing` / coder). **Reset `round` to 0 on this
+    hand-off** — the spec loop is settled, so the code review/fix loop must start
+    with a full `max_rounds` budget rather than inheriting the spec-debate count.
 
 ### status == `reviewing`  →  review the code
 - Review the implementation against the spec, the existing tests, and the

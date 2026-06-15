@@ -47,7 +47,7 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
 |---------------|------------|---------------------|----------------|-------------|
 | `new`         | coder      | spec written        | `spec`         | reviewer    |
 | `spec`        | reviewer   | spec has gaps       | `new`          | coder       |
-| `spec`        | reviewer   | spec sound          | `implementing` | coder       |
+| `spec`        | reviewer   | spec sound          | `implementing` | coder       |  (round reset to 0)
 | `implementing`| coder      | implemented         | `reviewing`    | reviewer    |
 | `reviewing`   | reviewer   | P0/P1 present       | `fixing`       | coder       |
 | `reviewing`   | reviewer   | no blocking issues  | `testing`      | human       |
@@ -68,9 +68,11 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
    `round >= loop.max_rounds`, whichever agent holds the baton stops the
    ping-pong and routes to `owner=human, status=testing` with a note explaining
    it didn't converge. An unattended loop that can't converge escalates; it does
-   not quietly burn tokens. When a human bounces a change back with a `bug`,
-   `round` resets to 0 so the fix gets a full budget rather than inheriting the
-   exhausted counter from the original implementation.
+   not quietly burn tokens. The two loops each get their own full budget:
+   `round` resets to 0 when the spec is approved (`spec → implementing`), and
+   again when a human bounces a change back with a `bug` (`testing →
+   implementing`) — so a hard-fought spec debate never starves the later code
+   review/fix loop, and a bugfix never inherits an exhausted counter.
 
 ## Why severities gate the flow
 

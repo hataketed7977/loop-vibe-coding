@@ -125,11 +125,13 @@ relay baton that drives everything.
 | `integrating`  | coder    | commit + `openspec archive`         | `done`                                |
 | `done`         | —        | committed & archived                | —                                     |
 
-**Safety rails.** A `max_rounds` circuit breaker — counting **both** the spec
-(`new ↔ spec`) and code (`reviewing ↔ fixing`) loops — forces a hand-off to the
-human if the agents fail to converge, so an unattended loop can't sit there
-burning tokens arguing with itself. Agents only write `status=done` from the
-`integrating` step, and only after a human has already accepted the change.
+**Safety rails.** A `max_rounds` circuit breaker guards **both** the spec
+(`new ↔ spec`) and code (`reviewing ↔ fixing`) loops — each gets its own full
+budget (`round` resets to 0 when the spec is approved and on a human bug bounce)
+— and forces a hand-off to the human if the agents fail to converge, so an
+unattended loop can't sit there burning tokens arguing with itself. Agents only
+write `status=done` from the `integrating` step, and only after a human has
+already accepted the change.
 
 ---
 

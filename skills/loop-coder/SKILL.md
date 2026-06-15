@@ -70,11 +70,19 @@ Look up the current `status` in `loop.transitions` and do the matching job.
   from acceptance: treat `bug` as the new requirement — reproduce it, diagnose
   the root cause, and fix it. Otherwise, implement the approved change spec
   normally.
+- **Reset the breaker on a bug bounce.** A human bug return (`bug` non-empty)
+  starts a fresh fix budget — `transitions.testing.on_bug` carries
+  `reset_round: true`. Don't assume the executor honored it: if `bug` is
+  non-empty and `round != 0`, set `round = 0` yourself in this update. Otherwise
+  a leftover high `round` trips the circuit breaker on the first review.
 - **Self-check before handing off**: run the test & lint commands from
   `AGENTS.md`. Fix what you can. Put the raw machine output (test/lint results)
   in `test_report`, and your judgement / what you changed in `resolution`.
-- **If you fixed a logged bug, clear `bug`** in the same update — once handled, it
-  must not linger and re-trigger this branch on a later re-entry.
+- **When a logged bug is fixed, archive it before clearing.** Copy the `bug`
+  repro (plus how you fixed it) into `resolution` so the only human reproduction
+  is preserved as history, THEN clear `bug` in the same update — once handled it
+  must not linger and re-trigger this branch on a later re-entry. Never clear
+  `bug` without first preserving its content in `resolution`.
 - Hand off per `transitions.implementing` (→ `reviewing` / reviewer).
 
 ### status == `fixing`  →  apply review feedback
@@ -94,6 +102,12 @@ Look up the current `status` in `loop.transitions` and do the matching job.
   `test_report`.
 - Commit the change with a clear message, then `openspec archive` it following
   the project's OpenSpec conventions.
+- **Re-check before closing.** `integrating` is a long window (tests + commit +
+  archive); a human can change their mind in it. Immediately before the final
+  Base update, re-read the row and confirm `status` is still `integrating` and
+  `owner` is still `coder`. If either moved (e.g. the human pulled it back to
+  `implementing` or logged a new `bug`), do NOT write `done` — abandon the close
+  and exit, leaving the human's new state intact.
 - Hand off per `transitions.integrating`: set `status=done` and **clear `owner`**
   (leave it empty — `none` in the config means "no owner", not the literal string
   "none"). This is the ONLY status from which you write `done`, and only because a

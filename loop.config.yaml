@@ -48,8 +48,11 @@ openspec:
 # Loop behaviour & safety rails.
 # -----------------------------------------------------------------------------
 loop:
-  max_rounds: 5            # circuit breaker: applies to BOTH the spec (new<->spec)
-                           # and the code (reviewing<->fixing) ping-pongs. If either
+  max_rounds: 5            # circuit breaker. Counts the spec (new<->spec) and the
+                           # code (reviewing<->fixing) ping-pongs SEPARATELY: `round`
+                           # resets to 0 when the spec is approved (spec.on_clean)
+                           # and again on a human bug bounce (testing.on_bug), so
+                           # each loop gets its own full budget. If either loop
                            # exceeds this without converging, force owner=human,
                            # status=testing with a note.
   poll_hint: "300s"        # suggested polling interval; actual cadence is set by
@@ -66,8 +69,8 @@ loop:
       next_owner: reviewer
     spec:
       owner: reviewer
-      on_issues: { next_status: new,          next_owner: coder }   # spec needs work
-      on_clean:  { next_status: implementing, next_owner: coder }   # spec approved
+      on_issues: { next_status: new,          next_owner: coder }                      # spec needs work
+      on_clean:  { next_status: implementing, next_owner: coder, reset_round: true }    # spec approved — fresh budget for the code loop
     implementing:
       owner: coder
       next_status: reviewing

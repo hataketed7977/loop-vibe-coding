@@ -72,7 +72,7 @@
       "type": "number",
       "feishu_type": 2,
       "written_by": "reviewer",
-      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker; reset to 0 on a human bug bounce.",
+      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker; reset to 0 when the spec is approved and on a human bug bounce, so each loop gets a full budget.",
       "formatter": "0"
     },
     {
