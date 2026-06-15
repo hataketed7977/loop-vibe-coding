@@ -71,8 +71,8 @@
       "name": "round",
       "type": "number",
       "feishu_type": 2,
-      "written_by": "reviewer",
-      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker; reset to 0 when the spec is approved and on a human bug bounce, so each loop gets a full budget.",
+      "written_by": "reviewer|coder|human",
+      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker. The reviewer increments it each review; it resets to 0 when the spec is approved (reviewer, spec->implementing), when the coder self-heals a fresh code loop, and when a human bounces a bug back (human, testing->implementing) — so each loop gets a full budget.",
       "formatter": "0"
     },
     {

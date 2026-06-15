@@ -129,11 +129,17 @@ When you hand off you MUST, in the same Base update:
 
 ## 4. Safety
 
-- **Circuit breaker**: if `round >= loop.max_rounds`, do NOT start another fix
-  cycle. Park the change for a human: set `owner=human` and `status=blocked`
-  (the circuit-breaker lane per `loop.breaker` — NOT `testing`), and write in
-  `resolution`: "Not converging after N rounds — needs human judgement." This
-  stops the loop from burning tokens arguing with the reviewer.
+- **Circuit breaker**: this applies ONLY to the iterating loops you drive
+  (`fixing` / `implementing` after a review, i.e. the code loop) — NEVER to
+  `integrating`. If your current status is one of those loops and
+  `round >= loop.max_rounds`, do NOT start another fix cycle. Park the change
+  for a human: set `owner=human` and `status=blocked` (the circuit-breaker lane
+  per `loop.breaker` — NOT `testing`), and write in `resolution`: "Not
+  converging after N rounds — needs human judgement." This stops the loop from
+  burning tokens arguing with the reviewer. `integrating` is post-acceptance
+  mechanical finish — a human has already passed it, so the round count is
+  irrelevant there: ALWAYS complete it (commit + archive + `done`) regardless
+  of `round`, never divert it to `blocked`.
 - **Acceptance is not yours**: the human owns the acceptance gate. You may only
   write `status=done` from the `integrating` status — i.e. AFTER a human has
   passed acceptance. Never set `done` from any other status.

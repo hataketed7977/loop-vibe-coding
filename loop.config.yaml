@@ -53,8 +53,9 @@ loop:
                            # resets to 0 when the spec is approved (spec.on_clean)
                            # and again on a human bug bounce (testing.on_bug), so
                            # each loop gets its own full budget. If either loop
-                           # exceeds this without converging, force owner=human,
-                           # status=testing with a note.
+                           # exceeds this without converging, the agent parks the
+                           # change per `loop.breaker` below (status=blocked,
+                           # owner=human) — NOT `testing`.
   poll_hint: "300s"        # suggested polling interval; actual cadence is set by
                            # each agent's own scheduler (Codex Automation / CC /loop).
                            # A two-model loop burns tokens — keep this relaxed.
