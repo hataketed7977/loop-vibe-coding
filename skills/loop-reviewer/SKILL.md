@@ -42,6 +42,10 @@ still equals your token — if another token is there, a parallel tick won, so b
 off and exit. Lark Base has no compare-and-swap, so this last-writer-wins re-read
 is what guarantees exactly one reviewer tick works the row.
 
+On that same re-read, also confirm `owner` is still `reviewer` and `status` is
+unchanged — a human may have retaken the row in the claim window. If either
+moved, drop the claim and exit.
+
 Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, `test_report`, and
 the existing `review`.
 

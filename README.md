@@ -43,7 +43,8 @@ You ──start──▶ [State Machine: new task, owner=coder]
          │                             │
          └──────────► owner=human ◀────┘
                        │
-You ──acceptance test──▶ pass = done  |  bug = back into the loop
+You ──acceptance test──▶ pass = integrating → coder commits & archives → done
+                         bug  = back into the loop
 ```
 
 Three principles:
@@ -54,9 +55,11 @@ Three principles:
   there is no driver process to maintain.
 - **State lives outside the conversation.** Agents forget everything between
   runs; the Base does not. It is the loop's memory and its dashboard.
-- **The human owns the acceptance gate.** Agents can advance a task up to
-  `testing`, but **never to `done`**. "It works" is a claim, not a proof —
-  the final acceptance test stays with you.
+- **The human owns the acceptance gate.** Agents advance a task up to
+  `testing` and then stop — they never *decide* a change is done. Only after you
+  pass the acceptance test (`status = integrating`) does the coder do the
+  mechanical commit + archive and write `done`. "It works" is a claim, not a
+  proof — the judgement stays with you.
 
 ---
 

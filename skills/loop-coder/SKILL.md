@@ -48,6 +48,10 @@ your token — if it holds another token, a parallel tick won the race, so back 
 and exit. This is an optimistic lock: Lark Base has no compare-and-swap, so the
 last writer wins on re-read and exactly one claimant survives.
 
+On that same re-read, also confirm `owner` is still `coder` and `status` is
+unchanged — a human may have retaken the row in the claim window. If either
+moved, drop the claim and exit.
+
 Read the claimed record's `status`, `task`, `change_id`, `spec_ref`, `review`,
 `round`, `test_report`, and `bug` fields.
 
