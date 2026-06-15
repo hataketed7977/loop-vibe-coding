@@ -1,0 +1,131 @@
+{
+  "$comment": "Machine-readable spec of the loop-vibe-coding state-machine table. An AI agent (via any Feishu/Lark Bitable API or MCP) can consume this to create the table deterministically. Field 'name' values are the DEFAULT column names; they map to the logical keys in loop.config.yaml > base.fields. After creation, write the resulting app_token and table_id back into loop.config.yaml.",
+  "table": {
+    "name": "loop-vibe-coding",
+    "description": "One row per change. The `owner` field is the relay baton between coder and reviewer; the `status` field is the lifecycle stage."
+  },
+  "fields": [
+    {
+      "key": "task",
+      "name": "task",
+      "type": "text",
+      "feishu_type": 1,
+      "required_on_kickoff": true,
+      "written_by": "human",
+      "desc": "The requirement / task description."
+    },
+    {
+      "key": "change_id",
+      "name": "change_id",
+      "type": "text",
+      "feishu_type": 1,
+      "written_by": "coder",
+      "desc": "OpenSpec change identifier, filled after the spec is written."
+    },
+    {
+      "key": "status",
+      "name": "status",
+      "type": "single_select",
+      "feishu_type": 3,
+      "written_by": "coder|reviewer",
+      "desc": "Lifecycle stage. Agents may never set 'done'.",
+      "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "done"]
+    },
+    {
+      "key": "owner",
+      "name": "owner",
+      "type": "single_select",
+      "feishu_type": 3,
+      "written_by": "coder|reviewer",
+      "desc": "The relay baton.",
+      "options": ["coder", "reviewer", "human"]
+    },
+    {
+      "key": "spec_ref",
+      "name": "spec_ref",
+      "type": "text",
+      "feishu_type": 1,
+      "written_by": "coder",
+      "desc": "Spec content or a link to it."
+    },
+    {
+      "key": "review",
+      "name": "review",
+      "type": "text",
+      "feishu_type": 1,
+      "multiline": true,
+      "written_by": "reviewer",
+      "desc": "Structured, severity-tagged feedback. Appended per round."
+    },
+    {
+      "key": "resolution",
+      "name": "resolution",
+      "type": "text",
+      "feishu_type": 1,
+      "multiline": true,
+      "written_by": "coder",
+      "desc": "Per-item judgement of feedback + what was changed + checks run."
+    },
+    {
+      "key": "round",
+      "name": "round",
+      "type": "number",
+      "feishu_type": 2,
+      "written_by": "reviewer",
+      "desc": "Review iteration counter. Drives the max_rounds circuit breaker.",
+      "formatter": "0"
+    },
+    {
+      "key": "test_report",
+      "name": "test_report",
+      "type": "text",
+      "feishu_type": 1,
+      "multiline": true,
+      "written_by": "coder|human",
+      "desc": "Machine test/lint output + the human's acceptance notes."
+    },
+    {
+      "key": "bug",
+      "name": "bug",
+      "type": "text",
+      "feishu_type": 1,
+      "multiline": true,
+      "written_by": "human",
+      "desc": "Repro steps logged when bouncing a change back from testing."
+    },
+    {
+      "key": "updated_at",
+      "name": "updated_at",
+      "type": "last_modified_time",
+      "feishu_type": 1004,
+      "written_by": "auto",
+      "desc": "Auto timestamp; pollers pick the oldest pending record.",
+      "date_formatter": "yyyy-MM-dd HH:mm"
+    }
+  ],
+  "views": [
+    {
+      "name": "Needs me",
+      "type": "grid",
+      "filter": "owner = human",
+      "desc": "Your inbox: rows awaiting acceptance test or a tie-break."
+    },
+    {
+      "name": "In flight",
+      "type": "grid",
+      "filter": "owner != human AND status != done",
+      "desc": "The loop's live activity."
+    },
+    {
+      "name": "Done",
+      "type": "grid",
+      "filter": "status = done"
+    }
+  ],
+  "post_create": [
+    "Write the created base app_token into loop.config.yaml > base.app_token.",
+    "Write the created table_id into loop.config.yaml > base.table_id.",
+    "If any column name differs from the defaults above, update loop.config.yaml > base.fields accordingly.",
+    "Optional: in Feishu Bitable, add an automation that sends a message when `owner` becomes `human`."
+  ]
+}

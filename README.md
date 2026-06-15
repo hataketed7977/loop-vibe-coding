@@ -130,9 +130,25 @@ own.
 
 ## Quick start
 
+### The easy way — let an AI set it up
+
+Install the [`loop-init`](skills/loop-init/SKILL.md) skill and tell any capable
+agent (one that has Feishu Bitable access):
+
+> "Initialize loop-vibe-coding in this repo."
+
+`loop-init` creates the state table from the machine-readable
+[`docs/bitable.schema.json`](docs/bitable.schema.json), writes the resulting
+`app_token` / `table_id` back into `loop.config.yaml`, fills the `roles` mapping,
+and adds the `## Loop Commands` section to your `AGENTS.md` — end to end, no
+manual steps. This is the recommended path if you'd rather have the AI do the
+boring setup.
+
+### The manual way
+
 1. **Create the state table.** In Feishu Bitable, create a table from the spec
-   in [`docs/bitable-schema.md`](docs/bitable-schema.md). (Or duplicate a
-   template base.)
+   in [`docs/bitable-schema.md`](docs/bitable-schema.md) (human-readable) or
+   [`docs/bitable.schema.json`](docs/bitable.schema.json) (machine-readable).
 2. **Configure the project.** Copy [`loop.config.yaml`](loop.config.yaml) into
    your target repo and fill in `base.app_token` / `base.table_id` and the
    `roles` mapping.
@@ -159,13 +175,15 @@ loop-vibe-coding/
 ├── LICENSE
 ├── loop.config.yaml                 # per-project config template
 ├── skills/
+│   ├── loop-init/SKILL.md           # one-shot AI initializer (creates table + config)
 │   ├── loop-coder/SKILL.md          # coder-role loop skill (tool-agnostic)
 │   └── loop-reviewer/SKILL.md       # reviewer-role loop skill (tool-agnostic)
 ├── templates/
 │   └── AGENTS.section.md            # the `## Loop Commands` snippet
 └── docs/
     ├── getting-started.md           # step-by-step onboarding
-    ├── bitable-schema.md            # state-table field spec
+    ├── bitable-schema.md            # state-table field spec (human-readable)
+    ├── bitable.schema.json          # state-table field spec (machine-readable)
     └── state-machine.md             # transitions & safety rails in detail
 ```
 
