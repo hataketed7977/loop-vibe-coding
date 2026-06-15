@@ -1,0 +1,91 @@
+# =============================================================================
+# loop-vibe-coding — per-project configuration
+# Copy this file into the ROOT of your target repository and fill it in.
+#
+# The loop skills (loop-coder / loop-reviewer) read ONLY this file plus your
+# repo's AGENTS.md. They contain no project knowledge themselves, so this is
+# the single glue layer between "the generic loop" and "your specific project".
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# State machine backend: the Feishu Bitable that holds one row per change.
+# -----------------------------------------------------------------------------
+base:
+  app_token: "bascnXXXXXXXXXXXXXXXX"   # Bitable app token (from the base URL)
+  table_id:  "tblXXXXXXXXXXXXXXXX"     # the state-machine table id
+
+  # Field-name mapping. Your Bitable columns may be named anything you like;
+  # the skills refer to the LOGICAL names on the left, resolved via this map.
+  fields:
+    task:        "task"          # human task description (you fill on kickoff)
+    change_id:   "change_id"     # OpenSpec change id (coder fills after spec)
+    status:      "status"        # single-select, see `loop.transitions`
+    owner:       "owner"         # single-select: coder | reviewer | human
+    spec_ref:    "spec_ref"      # spec content or link
+    review:      "review"        # reviewer's latest structured feedback
+    resolution:  "resolution"    # coder's judgement + how each item was handled
+    round:       "round"         # number, review iteration counter (breaker)
+    test_report: "test_report"   # machine test output + your acceptance notes
+    bug:         "bug"           # repro steps you log when bouncing back
+    updated_at:  "updated_at"    # auto-timestamp, used to detect new changes
+
+# -----------------------------------------------------------------------------
+# Who plays each role. Swap these two values to flip coder/reviewer between
+# tools — skills and the state machine are role-based and don't care.
+# -----------------------------------------------------------------------------
+roles:
+  coder:    codex          # e.g. codex | claude-code | cursor | ...
+  reviewer: claude-code
+
+# -----------------------------------------------------------------------------
+# OpenSpec integration (https://github.com/Fission-AI/OpenSpec)
+# -----------------------------------------------------------------------------
+openspec:
+  dir: "openspec"          # change-spec directory (OpenSpec default)
+
+# -----------------------------------------------------------------------------
+# Loop behaviour & safety rails.
+# -----------------------------------------------------------------------------
+loop:
+  max_rounds: 5            # circuit breaker: if reviewing<->fixing exceeds this
+                           # without converging, force owner=human, status=testing
+  poll_hint: "180s"        # suggested polling interval; actual cadence is set by
+                           # each agent's own scheduler (Codex Automation / CC /loop)
+
+  # The state machine. Each agent looks up the CURRENT status here to decide
+  # what to do and who to hand the baton to next. Edit this to change the flow
+  # WITHOUT touching the skills.
+  transitions:
+    new:
+      owner: coder
+      next_status: spec
+      next_owner: reviewer
+    spec:
+      owner: reviewer
+      on_issues: { next_status: new,          next_owner: coder }   # spec needs work
+      on_clean:  { next_status: implementing, next_owner: coder }   # spec approved
+    implementing:
+      owner: coder
+      next_status: reviewing
+      next_owner: reviewer
+    reviewing:
+      owner: reviewer
+      on_issues: { next_status: fixing,  next_owner: coder }
+      on_clean:  { next_status: testing, next_owner: human }
+    fixing:
+      owner: coder
+      next_status: reviewing
+      next_owner: reviewer
+    testing:
+      owner: human         # loop ALWAYS stops here; agents may not auto-advance
+      # human outcome: pass -> status=done ; bug -> status=implementing, owner=coder
+
+# -----------------------------------------------------------------------------
+# Quality gate. Which feedback severities MUST be fixed before a change can pass
+# review. Anything at or above these levels routes reviewing -> fixing.
+# -----------------------------------------------------------------------------
+quality_gate:
+  block_levels: ["P0", "P1"]   # P2/P3 are advisory and do not block
+  # The single source of truth for HOW to test/lint/build. The skills read the
+  # `## Loop Commands` section of this file at runtime — never hard-coded.
+  commands_source: "AGENTS.md"
