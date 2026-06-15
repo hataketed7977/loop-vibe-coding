@@ -32,6 +32,11 @@ Determine, in order of preference (config file > repo files > ask the user):
 - **Where the table should live**: a Lark Base the user can write to.
   If the user has an existing base, ask for its `app_token`; otherwise create a
   new base named `loop-vibe-coding`.
+- **Base API access for each agent**: confirm BOTH the coder and reviewer agents
+  have a working Base API credential (an app/tenant access token or a Base
+  MCP/skill that holds one). The `app_token` is just an identifier — without a
+  credential the pollers cannot read or write rows. Remind the user this lives in
+  each agent's environment and must NOT be committed.
 - **Role mapping**: which tool plays `coder` and which plays `reviewer`. Default
   to `coder: codex`, `reviewer: claude-code` if the user has no preference.
 - **Project commands**: the test / lint / build commands. Try to infer them

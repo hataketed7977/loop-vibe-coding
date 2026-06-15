@@ -36,6 +36,10 @@ a shared **state machine** (a Lark Base) and pass the baton via `owner`.
 Query the Base for a record where `owner == "reviewer"`, oldest `updated_at`
 first. If none, **exit cleanly**.
 
+Claim the row atomically: take it only if it is still owned by you and not
+already claimed by a parallel tick, then re-read to confirm ownership before
+reviewing. This prevents two overlapping ticks from grabbing the same row.
+
 Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
 `review`.
 
@@ -45,6 +49,8 @@ Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
 - Assess the OpenSpec change under `openspec.dir`: is it sound, complete, and
   faithful to `task`? Are edge cases and acceptance criteria covered?
 - Write findings into `review`.
+- Increment `round` by 1 (the spec ping-pong counts toward the circuit breaker
+  too — see §4).
 - Route per `transitions.spec`:
   - blocking gaps → `on_issues` (back to coder to revise the spec);
   - sound → `on_clean` (→ `implementing` / coder).
@@ -81,10 +87,11 @@ Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
 
 ## 4. Safety
 
-- **Circuit breaker**: if `round >= loop.max_rounds` and blocking issues remain,
-  do NOT bounce back to the coder again. Set `owner=human`, `status=testing`, and
-  note in `review`: "Unresolved after N rounds — needs human decision." Let the
-  human break the tie.
+- **Circuit breaker**: if `round >= loop.max_rounds` and blocking issues remain
+  (whether you are stuck in the spec loop or the code-review loop), do NOT bounce
+  back to the coder again. Set `owner=human`, `status=testing`, and note in
+  `review`: "Unresolved after N rounds — needs human decision." Let the human
+  break the tie.
 - **Stay in your lane**: never edit the code or set `status=done`. You review and
   route; the coder fixes; the human accepts.
 - **Verify, don't assume**: prefer running the project's own checks over trusting

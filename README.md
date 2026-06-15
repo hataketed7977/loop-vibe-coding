@@ -115,16 +115,18 @@ relay baton that drives everything.
 |----------------|----------|-------------------------------------|---------------------------------------|
 | `new`          | coder    | write OpenSpec change spec          | `spec` / reviewer                     |
 | `spec`         | reviewer | review the spec for soundness       | back to coder, or `implementing`/coder|
-| `implementing` | coder    | self-check + implement              | `reviewing` / reviewer                |
+| `implementing` | coder    | self-check + implement (or fix a logged bug) | `reviewing` / reviewer       |
 | `reviewing`    | reviewer | code review, write structured notes | `fixing`/coder (issues) · `testing`/human (clean) |
 | `fixing`       | coder    | judge feedback, fix, re-apply       | `reviewing` / reviewer                |
-| `testing`      | human    | **real acceptance test**            | `done`, or `implementing`/coder (bug) |
-| `done`         | —        | archived & committed                | —                                     |
+| `testing`      | human    | **real acceptance test**            | `integrating`/coder (pass) · `implementing`/coder (bug) |
+| `integrating`  | coder    | commit + `openspec archive`         | `done`                                |
+| `done`         | —        | committed & archived                | —                                     |
 
-**Safety rails.** A `max_rounds` circuit breaker forces a hand-off to the
-human if coder↔reviewer fail to converge, so an unattended loop can't sit there
-burning tokens arguing with itself. Agents may never set `status=done` on their
-own.
+**Safety rails.** A `max_rounds` circuit breaker — counting **both** the spec
+(`new ↔ spec`) and code (`reviewing ↔ fixing`) loops — forces a hand-off to the
+human if the agents fail to converge, so an unattended loop can't sit there
+burning tokens arguing with itself. Agents only write `status=done` from the
+`integrating` step, and only after a human has already accepted the change.
 
 ---
 
@@ -182,8 +184,8 @@ loop-vibe-coding/
 │   └── AGENTS.section.md            # the `## Loop Commands` snippet
 └── docs/
     ├── getting-started.md           # step-by-step onboarding
-    ├── base-schema.md            # state-table field spec (human-readable)
-    ├── base.schema.json          # state-table field spec (machine-readable)
+    ├── base-schema.md               # state-table field spec (human-readable)
+    ├── base.schema.json             # state-table field spec (machine-readable)
     └── state-machine.md             # transitions & safety rails in detail
 ```
 

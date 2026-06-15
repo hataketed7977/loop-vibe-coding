@@ -11,7 +11,11 @@ kickoff and the acceptance test.
 - Two AI coding agents that can run skills on a schedule — e.g. **Codex**
   (Automations) and **Claude Code** (`/loop`, cron, or scheduled tasks). Either
   can play either role.
-- A Lark **Base** you can create a table in, plus API access for the agents.
+- A Lark **Base** you can create a table in, plus **API access for each agent**.
+  The `app_token` / `table_id` in `loop.config.yaml` are only identifiers — each
+  agent additionally needs its own Base API credential (e.g. an app/tenant
+  access token, or an MCP/Base skill that holds one) to read and write rows.
+  Keep that credential in the agent's own environment; never commit it.
 
 ## Step 1 — Create the state table
 
@@ -62,9 +66,13 @@ Each tick the agent claims at most one row, does its job, hands off, and exits.
    their own.
 3. When a row lands in **🔴 Needs me** (`owner = human`, `status = testing`),
    do the real acceptance test:
-   - **Pass** → set `status = done`.
+   - **Pass** → set `status = integrating`, `owner = coder`. The coder runs a
+     final check, commits, and `openspec archive`s the change, then sets
+     `status = done`. (Agents reach `done` only through this post-acceptance
+     step — never on their own judgement.)
    - **Bug** → write repro steps in `bug`, set `status = implementing`,
-     `owner = coder`. It re-enters the loop.
+     `owner = coder`, and reset `round = 0` so the fix gets a full budget. It
+     re-enters the loop.
 
 ## Cost & sanity notes
 

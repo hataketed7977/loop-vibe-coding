@@ -47,10 +47,13 @@ openspec:
 # Loop behaviour & safety rails.
 # -----------------------------------------------------------------------------
 loop:
-  max_rounds: 5            # circuit breaker: if reviewing<->fixing exceeds this
-                           # without converging, force owner=human, status=testing
-  poll_hint: "180s"        # suggested polling interval; actual cadence is set by
-                           # each agent's own scheduler (Codex Automation / CC /loop)
+  max_rounds: 5            # circuit breaker: applies to BOTH the spec (new<->spec)
+                           # and the code (reviewing<->fixing) ping-pongs. If either
+                           # exceeds this without converging, force owner=human,
+                           # status=testing with a note.
+  poll_hint: "300s"        # suggested polling interval; actual cadence is set by
+                           # each agent's own scheduler (Codex Automation / CC /loop).
+                           # A two-model loop burns tokens — keep this relaxed.
 
   # The state machine. Each agent looks up the CURRENT status here to decide
   # what to do and who to hand the baton to next. Edit this to change the flow
@@ -77,8 +80,18 @@ loop:
       next_status: reviewing
       next_owner: reviewer
     testing:
-      owner: human         # loop ALWAYS stops here; agents may not auto-advance
-      # human outcome: pass -> status=done ; bug -> status=implementing, owner=coder
+      owner: human         # the acceptance gate ALWAYS stops here for a human.
+      # human outcome:
+      #   pass -> status=integrating, owner=coder        (mechanical finish, below)
+      #   bug  -> status=implementing, owner=coder, round=0, and fill `bug`
+      on_pass: { next_status: integrating,  next_owner: coder }
+      on_bug:  { next_status: implementing, next_owner: coder, reset_round: true }
+    integrating:
+      owner: coder         # post-acceptance bookkeeping ONLY (human already passed).
+      # The coder runs a final self-check, commits, and `openspec archive`s the
+      # change, then closes the row. This is the ONLY path that reaches `done`.
+      next_status: done
+      next_owner: none
 
 # -----------------------------------------------------------------------------
 # Quality gate. Which feedback severities MUST be fixed before a change can pass

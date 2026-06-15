@@ -29,7 +29,14 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
                                                              │       │       │
                                                        pass  │       │ bug   │
                                                              ▼       └───────┘
-                                                        ┌──────┐  (back to implementing)
+                                                    ┌──────────────┐ (back to implementing,
+                                                    │ integrating  │  round reset to 0)
+                                                    └──────────────┘
+                                                       owner=coder
+                                                    commit + archive
+                                                             │
+                                                             ▼
+                                                        ┌──────┐
                                                         │ done │
                                                         └──────┘
 ```
@@ -45,20 +52,25 @@ transitions, defined in `loop.config.yaml`, **are** the orchestration.
 | `reviewing`   | reviewer   | P0/P1 present       | `fixing`       | coder       |
 | `reviewing`   | reviewer   | no blocking issues  | `testing`      | human       |
 | `fixing`      | coder      | fixes applied       | `reviewing`    | reviewer    |
-| `testing`     | human      | acceptance pass     | `done`         | —           |
-| `testing`     | human      | bug found           | `implementing` | coder       |
+| `testing`     | human      | acceptance pass     | `integrating`  | coder       |
+| `testing`     | human      | bug found (round=0) | `implementing` | coder       |
+| `integrating` | coder      | commit + archive    | `done`         | —           |
 
 ## The two invariants
 
-1. **Agents never reach `done`.** The furthest an agent can push a change is
-   `testing` (handed to the human). Acceptance — the only judgement that proves,
-   rather than claims, the change works — always belongs to a person.
+1. **Agents never *decide* `done`.** The acceptance judgement always belongs to a
+   person. An agent only writes the literal `done` value in `integrating` — the
+   mechanical commit/archive step that runs *after* a human has already passed
+   acceptance. No agent can reach `done` from any other status.
 
-2. **The loop cannot spin forever.** `round` increments on every code review.
-   When `round >= loop.max_rounds`, whichever agent holds the baton stops the
+2. **The loop cannot spin forever.** `round` increments on every review — both
+   spec reviews (`new ↔ spec`) and code reviews (`reviewing ↔ fixing`). When
+   `round >= loop.max_rounds`, whichever agent holds the baton stops the
    ping-pong and routes to `owner=human, status=testing` with a note explaining
    it didn't converge. An unattended loop that can't converge escalates; it does
-   not quietly burn tokens.
+   not quietly burn tokens. When a human bounces a change back with a `bug`,
+   `round` resets to 0 so the fix gets a full budget rather than inheriting the
+   exhausted counter from the original implementation.
 
 ## Why severities gate the flow
 

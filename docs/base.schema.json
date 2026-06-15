@@ -28,8 +28,8 @@
       "type": "single_select",
       "feishu_type": 3,
       "written_by": "coder|reviewer",
-      "desc": "Lifecycle stage. Agents may never set 'done'.",
-      "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "done"]
+      "desc": "Lifecycle stage. Agents only write 'done' from the 'integrating' stage (after a human accepts).",
+      "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "integrating", "done"]
     },
     {
       "key": "owner",
@@ -64,7 +64,7 @@
       "feishu_type": 1,
       "multiline": true,
       "written_by": "coder",
-      "desc": "Per-item judgement of feedback + what was changed + checks run."
+      "desc": "Per-item judgement of feedback + what was changed."
     },
     {
       "key": "round",
@@ -72,7 +72,7 @@
       "type": "number",
       "feishu_type": 2,
       "written_by": "reviewer",
-      "desc": "Review iteration counter. Drives the max_rounds circuit breaker.",
+      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker; reset to 0 on a human bug bounce.",
       "formatter": "0"
     },
     {
@@ -82,7 +82,7 @@
       "feishu_type": 1,
       "multiline": true,
       "written_by": "coder|human",
-      "desc": "Machine test/lint output + the human's acceptance notes."
+      "desc": "Raw machine test/lint output (written by the coder each self-check) + the human's acceptance notes."
     },
     {
       "key": "bug",
