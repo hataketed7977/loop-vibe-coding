@@ -11,11 +11,11 @@ kickoff and the acceptance test.
 - Two AI coding agents that can run skills on a schedule — e.g. **Codex**
   (Automations) and **Claude Code** (`/loop`, cron, or scheduled tasks). Either
   can play either role.
-- A Feishu **Bitable** you can create a table in, plus API access for the agents.
+- A Lark **Base** you can create a table in, plus API access for the agents.
 
 ## Step 1 — Create the state table
 
-Create a Bitable table following [`bitable-schema.md`](bitable-schema.md). Add
+Create a Base table following [`base-schema.md`](base-schema.md). Add
 the three recommended views (especially **🔴 Needs me** = `owner = human`).
 Note the base `app_token` and `table_id`.
 

@@ -1,5 +1,5 @@
 {
-  "$comment": "Machine-readable spec of the loop-vibe-coding state-machine table. An AI agent (via any Feishu/Lark Bitable API or MCP) can consume this to create the table deterministically. Field 'name' values are the DEFAULT column names; they map to the logical keys in loop.config.yaml > base.fields. After creation, write the resulting app_token and table_id back into loop.config.yaml.",
+  "$comment": "Machine-readable spec of the loop-vibe-coding state-machine table. An AI agent (via any Lark Base API or MCP) can consume this to create the table deterministically. Field 'name' values are the DEFAULT column names; they map to the logical keys in loop.config.yaml > base.fields. After creation, write the resulting app_token and table_id back into loop.config.yaml.",
   "table": {
     "name": "loop-vibe-coding",
     "description": "One row per change. The `owner` field is the relay baton between coder and reviewer; the `status` field is the lifecycle stage."
@@ -126,6 +126,6 @@
     "Write the created base app_token into loop.config.yaml > base.app_token.",
     "Write the created table_id into loop.config.yaml > base.table_id.",
     "If any column name differs from the defaults above, update loop.config.yaml > base.fields accordingly.",
-    "Optional: in Feishu Bitable, add an automation that sends a message when `owner` becomes `human`."
+    "Optional: in Lark Base, add an automation that sends a message when `owner` becomes `human`."
   ]
 }

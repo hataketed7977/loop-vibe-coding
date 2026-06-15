@@ -2,9 +2,9 @@
 name: loop-init
 description: >-
   One-shot initializer for loop-vibe-coding. Run this once per project to set up
-  the whole loop with zero manual steps: it creates the Feishu Bitable
+  the whole loop with zero manual steps: it creates the Lark Base
   state-machine table (fields, single-select options, and views) from
-  docs/bitable.schema.json, writes the resulting app_token / table_id back into
+  docs/base.schema.json, writes the resulting app_token / table_id back into
   loop.config.yaml, fills in the roles mapping, and adds the `## Loop Commands`
   section to the repo's AGENTS.md. Designed to be AI-friendly: an agent can run
   it end to end from a single instruction like "initialize loop-vibe-coding".
@@ -21,7 +21,7 @@ did at the end.
 
 ## What you will produce
 
-1. A Feishu Bitable table that acts as the loop's state machine.
+1. A Lark Base table that acts as the loop's state machine.
 2. A filled-in `loop.config.yaml` in the repo root.
 3. A `## Loop Commands` section in the repo's `AGENTS.md`.
 
@@ -29,7 +29,7 @@ did at the end.
 
 Determine, in order of preference (config file > repo files > ask the user):
 
-- **Where the table should live**: a Bitable app (base) the user can write to.
+- **Where the table should live**: a Lark Base the user can write to.
   If the user has an existing base, ask for its `app_token`; otherwise create a
   new base named `loop-vibe-coding`.
 - **Role mapping**: which tool plays `coder` and which plays `reviewer`. Default
@@ -40,8 +40,8 @@ Determine, in order of preference (config file > repo files > ask the user):
 
 ## Step 1 — Create the state table
 
-Read `docs/bitable.schema.json` (the machine-readable spec). Using whatever
-Feishu/Lark Bitable capability you have (an MCP server, a Bitable skill, or the
+Read `docs/base.schema.json` (the machine-readable spec). Using whatever
+Lark Base capability you have (an MCP server, a Base skill, or the
 OpenAPI directly), create the table EXACTLY as specified:
 
 - Create each field with the given type. For `single_select` fields (`status`,
@@ -52,8 +52,8 @@ OpenAPI directly), create the table EXACTLY as specified:
 
 Capture the resulting **base app_token** and **table_id**.
 
-> If you have no Bitable API access at all, STOP and tell the user you need it
-> (a Bitable MCP/skill or API token), and show them `docs/bitable-schema.md` so
+> If you have no Base API access at all, STOP and tell the user you need it
+> (a Base MCP/skill or API token), and show them `docs/base-schema.md` so
 > they can create the table manually. Do not fake success.
 
 ## Step 2 — Write loop.config.yaml

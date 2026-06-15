@@ -1,6 +1,6 @@
-# Bitable state-machine schema
+# Base state-machine schema
 
-The loop coordinates entirely through one Feishu Bitable table. **One row = one
+The loop coordinates entirely through one Lark Base table. **One row = one
 change's full lifecycle.** Create a table with the fields below, then put its
 `app_token` and `table_id` into `loop.config.yaml`.
 
@@ -47,6 +47,6 @@ change's full lifecycle.** Create a table with the fields below, then put its
   live activity.
 - **✅ Done** — filter `status = done`.
 
-A notification on the "Needs me" view (Bitable automation → send a Feishu
+A notification on the "Needs me" view (Base automation → send a Lark
 message when `owner` becomes `human`) gives you a clean ping without any
 polling on your side.

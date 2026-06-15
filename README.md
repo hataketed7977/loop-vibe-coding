@@ -3,7 +3,7 @@
 > A portable **loop harness** that turns two AI coding agents into an autonomous
 > **coder ↔ reviewer** pair. You kick off the task and sign off the result —
 > the agents handle everything in between, coordinating through a shared
-> **state machine** (a Feishu Bitable).
+> **state machine** (a Lark Base).
 
 Built on the idea of **loop engineering**: instead of prompting a coding agent
 turn by turn, you design a loop that prompts the agents for you. See Addy
@@ -53,7 +53,7 @@ Three principles:
   the baton to the next role. **The state machine *is* the orchestration** —
   there is no driver process to maintain.
 - **State lives outside the conversation.** Agents forget everything between
-  runs; the Bitable does not. It is the loop's memory and its dashboard.
+  runs; the Base does not. It is the loop's memory and its dashboard.
 - **The human owns the acceptance gate.** Agents can advance a task up to
   `testing`, but **never to `done`**. "It works" is a claim, not a proof —
   the final acceptance test stays with you.
@@ -108,7 +108,7 @@ just work.
 
 ## The state machine
 
-One Bitable record = one change's full lifecycle. The `owner` field is the
+One Base record = one change's full lifecycle. The `owner` field is the
 relay baton that drives everything.
 
 | status         | owner    | action                              | next                                  |
@@ -133,12 +133,12 @@ own.
 ### The easy way — let an AI set it up
 
 Install the [`loop-init`](skills/loop-init/SKILL.md) skill and tell any capable
-agent (one that has Feishu Bitable access):
+agent (one that has Lark Base access):
 
 > "Initialize loop-vibe-coding in this repo."
 
 `loop-init` creates the state table from the machine-readable
-[`docs/bitable.schema.json`](docs/bitable.schema.json), writes the resulting
+[`docs/base.schema.json`](docs/base.schema.json), writes the resulting
 `app_token` / `table_id` back into `loop.config.yaml`, fills the `roles` mapping,
 and adds the `## Loop Commands` section to your `AGENTS.md` — end to end, no
 manual steps. This is the recommended path if you'd rather have the AI do the
@@ -146,9 +146,9 @@ boring setup.
 
 ### The manual way
 
-1. **Create the state table.** In Feishu Bitable, create a table from the spec
-   in [`docs/bitable-schema.md`](docs/bitable-schema.md) (human-readable) or
-   [`docs/bitable.schema.json`](docs/bitable.schema.json) (machine-readable).
+1. **Create the state table.** In Lark Base, create a table from the spec
+   in [`docs/base-schema.md`](docs/base-schema.md) (human-readable) or
+   [`docs/base.schema.json`](docs/base.schema.json) (machine-readable).
 2. **Configure the project.** Copy [`loop.config.yaml`](loop.config.yaml) into
    your target repo and fill in `base.app_token` / `base.table_id` and the
    `roles` mapping.
@@ -182,8 +182,8 @@ loop-vibe-coding/
 │   └── AGENTS.section.md            # the `## Loop Commands` snippet
 └── docs/
     ├── getting-started.md           # step-by-step onboarding
-    ├── bitable-schema.md            # state-table field spec (human-readable)
-    ├── bitable.schema.json          # state-table field spec (machine-readable)
+    ├── base-schema.md            # state-table field spec (human-readable)
+    ├── base.schema.json          # state-table field spec (machine-readable)
     └── state-machine.md             # transitions & safety rails in detail
 ```
 

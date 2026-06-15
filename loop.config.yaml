@@ -8,13 +8,13 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# State machine backend: the Feishu Bitable that holds one row per change.
+# State machine backend: the Lark Base that holds one row per change.
 # -----------------------------------------------------------------------------
 base:
-  app_token: "bascnXXXXXXXXXXXXXXXX"   # Bitable app token (from the base URL)
+  app_token: "bascnXXXXXXXXXXXXXXXX"   # Base app token (from the base URL)
   table_id:  "tblXXXXXXXXXXXXXXXX"     # the state-machine table id
 
-  # Field-name mapping. Your Bitable columns may be named anything you like;
+  # Field-name mapping. Your Base columns may be named anything you like;
   # the skills refer to the LOGICAL names on the left, resolved via this map.
   fields:
     task:        "task"          # human task description (you fill on kickoff)
