@@ -27,6 +27,7 @@ base:
     round:       "round"         # number, review iteration counter (breaker)
     test_report: "test_report"   # machine test output + your acceptance notes
     bug:         "bug"           # repro steps you log when bouncing back
+    claimed_by:  "claimed_by"    # optimistic-lock token (agents write/clear it)
     updated_at:  "updated_at"    # auto-timestamp, used to detect new changes
 
 # -----------------------------------------------------------------------------
@@ -91,7 +92,8 @@ loop:
       # The coder runs a final self-check, commits, and `openspec archive`s the
       # change, then closes the row. This is the ONLY path that reaches `done`.
       next_status: done
-      next_owner: none
+      next_owner: none     # `none` = CLEAR the owner field (leave it empty), NOT
+                           # the literal string "none". `done` rows have no owner.
 
 # -----------------------------------------------------------------------------
 # Quality gate. Which feedback severities MUST be fixed before a change can pass

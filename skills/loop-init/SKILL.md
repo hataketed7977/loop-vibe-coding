@@ -85,7 +85,7 @@ values intact unless they are empty placeholders.
 
 - Re-read `loop.config.yaml` and confirm `app_token`, `table_id`, `roles`, and
   the field map are all populated (no remaining `XXXX` placeholders).
-- Confirm the table has all 11 fields and 3 views.
+- Confirm the table has all 12 fields and 3 views.
 - Do a dry read of the table to confirm the agent's credentials can access it.
 
 ## Step 5 — Report

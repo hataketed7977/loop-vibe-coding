@@ -36,12 +36,14 @@ a shared **state machine** (a Lark Base) and pass the baton via `owner`.
 Query the Base for a record where `owner == "reviewer"`, oldest `updated_at`
 first. If none, **exit cleanly**.
 
-Claim the row atomically: take it only if it is still owned by you and not
-already claimed by a parallel tick, then re-read to confirm ownership before
-reviewing. This prevents two overlapping ticks from grabbing the same row.
+Claim it before reviewing: generate a unique run token (e.g. `reviewer:<uuid>`),
+write it into `claimed_by`, then re-read the row. Proceed ONLY if `claimed_by`
+still equals your token — if another token is there, a parallel tick won, so back
+off and exit. Lark Base has no compare-and-swap, so this last-writer-wins re-read
+is what guarantees exactly one reviewer tick works the row.
 
-Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
-`review`.
+Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, `test_report`, and
+the existing `review`.
 
 ## 2. Review by status
 
@@ -82,6 +84,7 @@ Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
 ## 3. Hand-off discipline
 
 - Always write `review` BEFORE flipping `status`/`owner`, in the same update.
+- **Clear `claimed_by`** when you hand off — you are releasing the row.
 - Append to review history with the round number; don't erase prior rounds.
 - Be specific: file + line + why + suggested fix. Vague review = wasted loop tick.
 
@@ -97,4 +100,7 @@ Read `status`, `change_id`, `spec_ref`, `resolution`, `round`, and the existing
 - **Verify, don't assume**: prefer running the project's own checks over trusting
   the coder's self-report. A reviewer you can trust is the only reason the human
   can walk away from the loop.
-- **One change per run**: handle a single claimed record, then exit.
+- **One change per run, claimed atomically**: handle a single claimed record,
+  then exit. Use the `claimed_by` optimistic lock from §1 (write your run token,
+  re-read, only proceed if it's still yours) so two overlapping ticks can't both
+  review the same row.

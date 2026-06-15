@@ -42,8 +42,9 @@ and come to rest in **🔴 Needs me** (`owner = human`, `status = testing`).
 
 Schedule both agents to tick at (almost) the same instant to force a race. Watch
 `updated_at` and the `review` / `resolution` history: a single row must never be
-rewritten by both agents in the same window. This exercises the "conditional
-write + read-back confirm" lease in the claim step.
+rewritten by both agents in the same window. This exercises the `claimed_by`
+optimistic lock (write a unique run token → re-read → only proceed if it's still
+yours) in the claim step.
 
 ### 4. The human's two exits both work
 

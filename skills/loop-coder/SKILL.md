@@ -41,8 +41,15 @@ loop or talk to the reviewer directly. You react to a shared **state machine**
 Query the Base for a record where `owner == "coder"`. Among matches, pick the
 oldest `updated_at`. If none exist, **exit cleanly** (nothing to do this tick).
 
-Read the claimed record's `status`, `task`, `change_id`, `review`, `round`, and
-`bug` fields.
+**Claim it before working it** (so two overlapping ticks can't both grab the same
+row): generate a unique run token (e.g. `coder:<uuid>`), write it into
+`claimed_by`, then re-read the row. Proceed ONLY if `claimed_by` still equals
+your token — if it holds another token, a parallel tick won the race, so back off
+and exit. This is an optimistic lock: Lark Base has no compare-and-swap, so the
+last writer wins on re-read and exactly one claimant survives.
+
+Read the claimed record's `status`, `task`, `change_id`, `spec_ref`, `review`,
+`round`, `test_report`, and `bug` fields.
 
 ## 2. Act by status
 
@@ -62,6 +69,8 @@ Look up the current `status` in `loop.transitions` and do the matching job.
 - **Self-check before handing off**: run the test & lint commands from
   `AGENTS.md`. Fix what you can. Put the raw machine output (test/lint results)
   in `test_report`, and your judgement / what you changed in `resolution`.
+- **If you fixed a logged bug, clear `bug`** in the same update — once handled, it
+  must not linger and re-trigger this branch on a later re-entry.
 - Hand off per `transitions.implementing` (→ `reviewing` / reviewer).
 
 ### status == `fixing`  →  apply review feedback
@@ -81,14 +90,16 @@ Look up the current `status` in `loop.transitions` and do the matching job.
   `test_report`.
 - Commit the change with a clear message, then `openspec archive` it following
   the project's OpenSpec conventions.
-- Hand off per `transitions.integrating`: set `status=done`, `owner=none`. This
-  is the ONLY status from which you write `done`, and only because a human has
-  already accepted the change.
+- Hand off per `transitions.integrating`: set `status=done` and **clear `owner`**
+  (leave it empty — `none` in the config means "no owner", not the literal string
+  "none"). This is the ONLY status from which you write `done`, and only because a
+  human has already accepted the change.
 
 ## 3. Hand-off discipline
 
 When you hand off you MUST, in the same Base update:
 - set `status` and `owner` to the transition's target;
+- **clear `claimed_by`** (you are releasing the row to the next owner);
 - leave a clear trail in `resolution` (what you did, what you ran, what passed);
 - never clear the reviewer's `review` history — append, don't overwrite, context.
 
@@ -104,7 +115,7 @@ When you hand off you MUST, in the same Base update:
 - **Be honest about verification**: only claim a check passed if you actually ran
   it. "It works" is a claim, not a proof.
 - **One change per run, claimed atomically**: handle a single claimed record,
-  then exit. To avoid two overlapping ticks grabbing the same row, claim it with
-  a conditional write (only take it if `owner` is still yours and unclaimed) and
-  re-read after writing to confirm you own it before doing any work. The
-  scheduler will tick you again.
+  then exit. Use the `claimed_by` optimistic lock from §1 — write your unique run
+  token, re-read, and only work the row if the token is still yours. This is what
+  stops two overlapping ticks from grabbing the same row. The scheduler will tick
+  you again.

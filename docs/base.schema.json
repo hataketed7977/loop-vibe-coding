@@ -27,8 +27,8 @@
       "name": "status",
       "type": "single_select",
       "feishu_type": 3,
-      "written_by": "coder|reviewer",
-      "desc": "Lifecycle stage. Agents only write 'done' from the 'integrating' stage (after a human accepts).",
+      "written_by": "coder|reviewer|human",
+      "desc": "Lifecycle stage. Agents only write 'done' from the 'integrating' stage (after a human accepts); the human writes status on kickoff and at the acceptance gate.",
       "options": ["new", "spec", "implementing", "reviewing", "fixing", "testing", "integrating", "done"]
     },
     {
@@ -36,8 +36,8 @@
       "name": "owner",
       "type": "single_select",
       "feishu_type": 3,
-      "written_by": "coder|reviewer",
-      "desc": "The relay baton.",
+      "written_by": "coder|reviewer|human",
+      "desc": "The relay baton. The human sets it on kickoff and at the acceptance gate; agents pass it on hand-off. Cleared (left empty) when a change reaches 'done'.",
       "options": ["coder", "reviewer", "human"]
     },
     {
@@ -92,6 +92,14 @@
       "multiline": true,
       "written_by": "human",
       "desc": "Repro steps logged when bouncing a change back from testing."
+    },
+    {
+      "key": "claimed_by",
+      "name": "claimed_by",
+      "type": "text",
+      "feishu_type": 1,
+      "written_by": "coder|reviewer",
+      "desc": "Optimistic lock. Before working a row, an agent writes a unique run token here (e.g. 'reviewer:run-<uuid>'), then re-reads: it only proceeds if the token is still its own. Two overlapping ticks write different tokens; the last write wins on re-read, so only one agent claims the row. Cleared on hand-off."
     },
     {
       "key": "updated_at",

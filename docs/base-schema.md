@@ -13,14 +13,15 @@ change's full lifecycle.** Create a table with the fields below, then put its
 |---------------|----------------|-------------------|-------------------------------------------------------------------------|
 | `task`        | Text           | human (kickoff)   | The requirement / task description.                                      |
 | `change_id`   | Text           | coder             | OpenSpec change identifier, filled after the spec is written.           |
-| `status`      | Single select  | coder / reviewer  | Lifecycle stage — see options below. Agents only write `done` from `integrating`. |
-| `owner`       | Single select  | coder / reviewer  | The relay baton: `coder` \| `reviewer` \| `human`.                       |
+| `status`      | Single select  | coder / reviewer / human | Lifecycle stage — see options below. Agents only write `done` from `integrating`; the human writes it on kickoff and at acceptance. |
+| `owner`       | Single select  | coder / reviewer / human | The relay baton: `coder` \| `reviewer` \| `human`. Cleared (empty) on `done`. |
 | `spec_ref`    | Text           | coder             | Spec content or a link to it.                                            |
 | `review`      | Text (multi)   | reviewer          | Structured, severity-tagged feedback. Append per round; don't overwrite.|
 | `resolution`  | Text (multi)   | coder             | Per-item judgement of feedback + what was changed.                      |
 | `round`       | Number         | reviewer          | Review iteration counter (spec + code reviews). Drives `max_rounds`; reset to 0 on a human bug bounce. |
 | `test_report` | Text (multi)   | coder / human     | Raw machine test/lint output + the human's acceptance notes.            |
 | `bug`         | Text (multi)   | human             | Repro steps logged when bouncing a change back from `testing`.          |
+| `claimed_by`  | Text           | coder / reviewer  | Optimistic-lock token: an agent writes a unique run token before working a row and re-reads to confirm it won the claim. Cleared on hand-off. |
 | `updated_at`  | Auto timestamp | (auto)            | Used by pollers to pick the oldest pending record.                      |
 
 ## `status` single-select options
