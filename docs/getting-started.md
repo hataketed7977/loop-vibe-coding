@@ -74,6 +74,13 @@ Each tick the agent claims at most one row, does its job, hands off, and exits.
      `owner = coder`, and reset `round = 0` so the fix gets a full budget. It
      re-enters the loop.
 
+## Verify it works
+
+Before you trust the loop unattended, run the five checks in
+[`smoke-test.md`](smoke-test.md) — they prove each agent can authenticate, that
+concurrent ticks don't double-claim, and that the circuit breaker stops a
+runaway loop.
+
 ## Cost & sanity notes
 
 - A two-model loop reviewing each other's work burns tokens **faster** than a
