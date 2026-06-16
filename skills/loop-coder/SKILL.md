@@ -129,17 +129,22 @@ When you hand off you MUST, in the same Base update:
 
 ## 4. Safety
 
-- **Circuit breaker**: this applies ONLY to the iterating loops you drive
-  (`fixing` / `implementing` after a review, i.e. the code loop) — NEVER to
-  `integrating`. If your current status is one of those loops and
-  `round >= loop.max_rounds`, do NOT start another fix cycle. Park the change
-  for a human: set `owner=human` and `status=blocked` (the circuit-breaker lane
-  per `loop.breaker` — NOT `testing`), and write in `resolution`: "Not
-  converging after N rounds — needs human judgement." This stops the loop from
-  burning tokens arguing with the reviewer. `integrating` is post-acceptance
-  mechanical finish — a human has already passed it, so the round count is
-  irrelevant there: ALWAYS complete it (commit + archive + `done`) regardless
-  of `round`, never divert it to `blocked`.
+- **Circuit breaker**: this applies to EVERY iterating loop you drive — the spec
+  loop (`new`, where the reviewer keeps bouncing the spec back) AND the code loop
+  (`fixing` / `implementing` after a review) — but NEVER to `integrating`. Before
+  you start the job for the current `status`, check `round`: if
+  `round >= loop.max_rounds` and the row is still bouncing (status is `new` after
+  a spec rejection, or `fixing`/`implementing` after a code review), do NOT start
+  another cycle. Park the change for a human: set `owner=human` and
+  `status=blocked` (the circuit-breaker lane per `loop.breaker` — NOT `testing`),
+  and write in `resolution`: "Not converging after N rounds — needs human
+  judgement." This stops the loop from burning tokens arguing with the reviewer.
+  `integrating` is the one exception — it is the post-acceptance mechanical finish
+  (a human has already passed it), so the round count is irrelevant there: ALWAYS
+  complete it (commit + archive + `done`) regardless of `round`, never divert it
+  to `blocked`. (A fresh `implementing` arriving from an approved spec, or from a
+  human bug bounce, starts at `round = 0` — see §2 — so it never trips this on
+  entry.)
 - **Acceptance is not yours**: the human owns the acceptance gate. You may only
   write `status=done` from the `integrating` status — i.e. AFTER a human has
   passed acceptance. Never set `done` from any other status.

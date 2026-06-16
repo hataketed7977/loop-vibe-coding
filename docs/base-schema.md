@@ -18,7 +18,7 @@ change's full lifecycle.** Create a table with the fields below, then put its
 | `spec_ref`    | Text           | coder             | Spec content or a link to it.                                            |
 | `review`      | Text (multi)   | reviewer          | Structured, severity-tagged feedback. Append per round; don't overwrite.|
 | `resolution`  | Text (multi)   | coder             | Per-item judgement of feedback + what was changed.                      |
-| `round`       | Number         | reviewer / coder / human | Review iteration counter (spec + code reviews). Drives `max_rounds`; the reviewer increments it, and it resets to 0 when the spec is approved (reviewer), when a fresh code loop starts, and when a human bounces a bug back (human) — so each loop gets a full budget. |
+| `round`       | Number         | reviewer / coder / human | Review iteration counter (spec + code reviews). Drives `max_rounds`. Each writer has ONE specific job: the **reviewer** increments it on every review and resets it to 0 when it approves a spec (`spec → implementing`); a **human** resets it to 0 when bouncing a bug back (`testing → implementing`); the **coder** only writes it to self-heal that bug-bounce reset (force `round = 0` if a human left it non-zero). No role writes `round` outside these cases. |
 | `test_report` | Text (multi)   | coder / human     | Raw machine test/lint output + the human's acceptance notes.            |
 | `bug`         | Text (multi)   | human             | Repro steps logged when bouncing a change back from `testing`.          |
 | `claimed_by`  | Text           | coder / reviewer  | Optimistic-lock token: an agent writes a unique run token before working a row and re-reads to confirm it won the claim. Cleared on hand-off. |
