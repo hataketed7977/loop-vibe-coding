@@ -95,3 +95,10 @@ Everything above is data, not code. To change the process — add a stage, chang
 who reviews the spec, make P2 blocking — edit `loop.transitions` and
 `quality_gate` in `loop.config.yaml`. The skills follow whatever the config
 says.
+
+## Consuming this contract
+
+For the precise, low-ambiguity form an implementer (or a reviewer auditing the
+repo) needs — the minimal atomic hand-off, the `next_owner: none` sentinel, the
+exact `round` writers, and claim / `integrating` re-check pseudocode — see
+[`executor-contract.md`](executor-contract.md).

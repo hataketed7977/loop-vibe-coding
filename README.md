@@ -194,6 +194,7 @@ loop-vibe-coding/
     ├── getting-started.md           # step-by-step onboarding
     ├── base-schema.md               # state-table field spec (human-readable)
     ├── base.schema.json             # state-table field spec (machine-readable)
+    ├── executor-contract.md         # how to consume the contract (reference runtime)
     └── state-machine.md             # transitions & safety rails in detail
 ```
 
