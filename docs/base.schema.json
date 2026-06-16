@@ -72,7 +72,12 @@
       "type": "number",
       "feishu_type": 2,
       "written_by": "reviewer|coder|human",
-      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker. Each writer has one specific job: the reviewer increments it on every review and resets it to 0 on spec approval (spec->implementing); a human resets it to 0 on a bug bounce (testing->implementing); the coder only writes it to self-heal that bug-bounce reset (force 0 if the human left it non-zero). No role writes round outside these cases.",
+      "writers": {
+        "reviewer": "increment + reset",
+        "human": "reset",
+        "coder": "reset only (never increment)"
+      },
+      "desc": "Review iteration counter (spec + code reviews). Drives the max_rounds circuit breaker. Each writer has one specific job: the reviewer increments it on every review and resets it to 0 on spec approval (spec->implementing); a human resets it to 0 on a bug bounce (testing->implementing); the coder NEVER increments — it only force-resets to 0 to self-heal a human bug bounce that left a stale non-zero value. No role writes round outside these cases.",
       "formatter": "0"
     },
     {
