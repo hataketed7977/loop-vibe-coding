@@ -181,9 +181,11 @@ See [`docs/getting-started.md`](docs/getting-started.md) for the full walkthroug
 
 ```
 loop-vibe-coding/
-├── README.md
+├── README.md                        # project pitch + summary tables (not source of truth)
+├── AGENTS.md                        # entry point for working ON this repo
+├── CLAUDE.md                        # pointer to AGENTS.md
 ├── LICENSE
-├── loop.config.yaml                 # per-project config template
+├── loop.config.yaml                 # per-project config template + state machine
 ├── skills/
 │   ├── loop-init/SKILL.md           # one-shot AI initializer (creates table + config)
 │   ├── loop-coder/SKILL.md          # coder-role loop skill (tool-agnostic)
@@ -191,11 +193,13 @@ loop-vibe-coding/
 ├── templates/
 │   └── AGENTS.section.md            # the `## Loop Commands` snippet
 └── docs/
+    ├── architecture.md              # "where do I change what?" navigation map
     ├── getting-started.md           # step-by-step onboarding
     ├── base-schema.md               # state-table field spec (human-readable)
     ├── base.schema.json             # state-table field spec (machine-readable)
     ├── executor-contract.md         # how to consume the contract (reference runtime)
-    └── state-machine.md             # transitions & safety rails in detail
+    ├── state-machine.md             # transitions & safety rails in detail
+    └── smoke-test.md                # how to verify a real two-agent setup
 ```
 
 ---
